@@ -22,7 +22,7 @@ server.registerTool('create-user',
             name: z.string(),
             email: z.string().email(),
         }),
-        annotations:{
+        annotations: {
             readOnlyHint: false,
             destructiveHint: false,
             idempotentHint: false,
@@ -38,7 +38,7 @@ server.registerTool('create-user',
                 ]
             }
 
-        } catch(error) {
+        } catch (error) {
             console.error("Error creating user:", error);
             return {
                 content: [
@@ -49,10 +49,31 @@ server.registerTool('create-user',
     }
 )
 
+server.registerResource(
+    'users',
+    'users://all',
+    {
+        description: 'Get all users',
+        title: 'users',
+        mimeType: 'application/json'
+    },
+    async uri => {
+        const filePath = path.join(__dirname, 'data', 'user.json');
+        const raw = await fs.readFile(filePath, 'utf-8');
+
+        return {
+            contents: [
+                { uri:uri.href, mimeType: 'application/json', text: raw }
+            ]
+        }
+    }
+)
+
+
 async function main() {
     const transport = new StdioServerTransport();
     await server.connect(transport);
-    console.error("Weather MCP Server running on stdio");
+    console.error("MCP Server running on stdio");
 }
 
 
